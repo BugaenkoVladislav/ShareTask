@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
-using ShareTaskAPI.Authorization;
 using ShareTaskAPI.Context;
 using ShareTaskAPI.Entities;
 
@@ -26,34 +18,55 @@ namespace ShareTaskAPI.Controllers
         {
             _db = db;
         }
-        [HttpPost]
+        [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn([FromBody]User user)//разберись
         {
-            
-            if (_db.Users.FirstOrDefault(x => x.Username == user.Username && x.Password == user.Password)==null)
+            try
             {
-                return NotFound("Uncorrect login or password");
+                if (_db.Users.FirstOrDefault(x => x.Username == user.Username && x.Password == user.Password) == null)
+                {
+                    return NotFound("Uncorrect login or password");
+                }
+
+                var role = user.IsAdmin == true ? "Admin" : "User";
+                var claims = new List<Claim>
+                {
+                    new Claim("username", user.Username.ToString()),
+                    new Claim("role",role)
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
             
-            var role = user.IsAdmin == true ? "Admin" : "User";
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, role)
-            };
-            
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-            return Ok();
         }
-        [Authorize(AuthenticationSchemes ="Cookies")]
-        [HttpGet]
-        public IActionResult GetAllUsers()
+        
+        
+        [HttpGet("GetAllUsers")]
+        [Authorize(Policy = "Authorized")]
+        public IActionResult GetAllUsers() //порешай с 404
         {
             try
             {
                 return Ok(_db.Users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPost("SignOut")]
+        public async Task<IActionResult> SignOut()
+        {
+            try
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return Ok();
             }
             catch (Exception ex)
             {
