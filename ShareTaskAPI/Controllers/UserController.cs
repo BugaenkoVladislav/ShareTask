@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -13,7 +14,6 @@ namespace ShareTaskAPI.Controllers
     public class UserController : ControllerBase
     {
         private MyDbContext _db;
-
         public UserController(MyDbContext db)
         {
             _db = db;
@@ -45,22 +45,73 @@ namespace ShareTaskAPI.Controllers
             }
             
         }
-        
-        
-        [HttpGet("GetAllUsers")]
-        [Authorize(Policy = "Authorized")]
-        public IActionResult GetAllUsers() //порешай с 404
+
+        [HttpPost("SignUp")]
+        public IActionResult SignUp(User user)
         {
             try
             {
-                return Ok(_db.Users);
+                _db.Users.Add(new User()
+                {
+                    Username = user.Username,
+                    Firstname = user.Firstname,
+                    Lastname = user.Lastname,
+                    Midname = user.Midname,
+                    IsAdmin = false
+                });
+                _db.SaveChanges();
+                return Ok("user successfully added");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
+        }
+        
+        
+        [HttpPut("ChangeUser")]
+        [Authorize(Policy = "Authorized")]
+        public async Task<IActionResult> ChangeUser([FromBody] User userNew)
+        {
+            try
+            {
+                var claimValue = HttpContext.User.Claims.FirstOrDefault(x => x.Type == "username")?.Value;
+                var user = _db.Users.First(x => x.Username == claimValue);
+                user.Username = userNew.Username;
+                user.Password = userNew.Password;
+                user.Firstname = userNew.Firstname;
+                user.Lastname = userNew.Lastname;
+                user.Midname = userNew.Lastname;
+                user.IsAdmin = false;
+                _db.Update(user);
+                _db.SaveChanges();
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return Ok(user);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
+        [HttpGet("Me")]
+        [Authorize(Policy = "Authorized")]
+        public IActionResult Me() //порешай с 404
+        {
+            try
+            {
+                var username = HttpContext.User.Claims.First(x => x.Type == "username").Value;
+                var user = _db.Users.FirstOrDefault(x => x.Username == username);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        
         [HttpPost("SignOut")]
+        [Authorize(Policy = "Authorized")]
         public async Task<IActionResult> SignOut()
         {
             try
