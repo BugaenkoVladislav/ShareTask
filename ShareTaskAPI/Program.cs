@@ -1,4 +1,5 @@
 using System.Configuration;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.EntityFrameworkCore;
