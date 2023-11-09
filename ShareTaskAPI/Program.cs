@@ -15,7 +15,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Authorized", policy => policy.RequireClaim("username"));
-    options.AddPolicy("IsAdmin",policy=>policy.RequireClaim("role","Admin"));
+    options.AddPolicy("OnlyForAdmin",policy=>policy.RequireClaim("role","1"));
 });
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

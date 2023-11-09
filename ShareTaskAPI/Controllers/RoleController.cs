@@ -12,6 +12,7 @@ namespace ShareTaskAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Authorized")]
     public class RoleController : ControllerBase
     {
         private MyDbContext _db;
@@ -22,7 +23,7 @@ namespace ShareTaskAPI.Controllers
         
         
         [HttpPost("AddRole/{role}")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Policy = "OnlyForAdmin")]
         public IActionResult AddRole([FromRoute] string role)
         {
             try
@@ -39,12 +40,23 @@ namespace ShareTaskAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        
-        
+
+        [HttpGet("GetAllRoles")]
+        public IActionResult GetAllRoles()
+        {
+            try
+            {
+                return Ok(_db.Roles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     
         
         [HttpDelete("DeleteRole/{role}")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Policy = "OnlyForAdmin")]
         public IActionResult DeleteRole([FromRoute] string role)
         {
             try

@@ -23,15 +23,16 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
-                if (_db.Users.FirstOrDefault(x => x.Username == user.Username && x.Password == user.Password) == null)
+                var dbUser = _db.Users.FirstOrDefault(x => x.Username == user.Username && x.Password == user.Password);
+                if ( dbUser == null)
                 {
                     return NotFound("Uncorrect login or password");
                 }
 
-                var role = user.IsAdmin == true ? "Admin" : "User";
+                var role = dbUser.IsAdmin == true ? "1" : "0";
                 var claims = new List<Claim>
                 {
-                    new Claim("username", user.Username.ToString()),
+                    new Claim("username", dbUser.Username.ToString()),
                     new Claim("role",role)
                 };
 
