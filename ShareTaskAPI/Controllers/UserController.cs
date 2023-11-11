@@ -52,16 +52,20 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
-                _db.Users.Add(new User()
+                if (_db.Users.FirstOrDefault(x => x.Username == user.Username) == null)
                 {
-                    Username = user.Username,
-                    Firstname = user.Firstname,
-                    Lastname = user.Lastname,
-                    Midname = user.Midname,
-                    IsAdmin = false
-                });
-                _db.SaveChanges();
-                return Ok("user successfully added");
+                    _db.Users.Add(new User()
+                    {
+                        Username = user.Username,
+                        Firstname = user.Firstname,
+                        Lastname = user.Lastname,
+                        Midname = user.Midname,
+                        IsAdmin = false
+                    });
+                    _db.SaveChanges();
+                    return Ok("user successfully added");
+                }
+                return BadRequest("This username all ready exist");
             }
             catch (Exception ex)
             {
