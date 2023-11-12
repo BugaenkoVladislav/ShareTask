@@ -1,25 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace ShareTaskAPI.Entities;
 
-namespace ShareTaskAPI.Entities;
-
-public partial class Task
+public class Task
 {
     public long IdTask { get; set; }
-
     public long IdList { get; set; }
-
-    public string Task1 { get; set; } = null!;
-
+    public long IdCreator { get; set; }
     public long IdRole { get; set; }
+    public string  NameTask { get; set; }= null!;
+    public string Description { get; set; } = null!;
 
-    public string? Description { get; set; }
-
-    public long IdUser { get; set; }
-
-    public virtual List IdListNavigation { get; set; } = null!;
-
+    public virtual List IdListNavigaton { get; set; } = null!;
+    public virtual User IdCreatorNavigaton { get; set; } = null!;
     public virtual Role IdRoleNavigation { get; set; } = null!;
-
-    public virtual User IdUserNavigation { get; set; } = null!;
 }

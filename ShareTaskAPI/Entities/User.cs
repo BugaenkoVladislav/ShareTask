@@ -17,11 +17,9 @@ public partial class User
 
     public string Midname { get; set; } = null!;
 
-    public double Balance { get; set; }
-
     public bool IsAdmin { get; set; }
 
+    public virtual ICollection<UserList> UsersLists { get; set; } = new List<UserList>();
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
-
-    public virtual ICollection<UsersList> UsersLists { get; set; } = new List<UsersList>();
+    public virtual ICollection<List> Lists { get; set; } = new List<List>();
 }

@@ -57,6 +57,7 @@ namespace ShareTaskAPI.Controllers
                     _db.Users.Add(new User()
                     {
                         Username = user.Username,
+                        Password = user.Password,
                         Firstname = user.Firstname,
                         Lastname = user.Lastname,
                         Midname = user.Midname,
