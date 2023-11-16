@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShareTaskAPI.Context;
 using ShareTaskAPI.Entities;
+using ShareTaskAPI.Service;
 
 namespace ShareTaskAPI.Controllers
 {
@@ -82,7 +83,7 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
-                var claimValue = HttpContext.User.Claims.FirstOrDefault(x => x.Type == "username")?.Value;
+                var claimValue = AccountActions.ReturnUserFromCookie(HttpContext, _db).Username;
                 var user = _db.Users.First(x => x.Username == claimValue);
                 user.Username = userNew.Username;
                 user.Password = userNew.Password;
@@ -106,7 +107,7 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
-                var username = HttpContext.User.Claims.First(x => x.Type == "username").Value;
+                var username = AccountActions.ReturnUserFromCookie(HttpContext, _db).Username;
                 var user = _db.Users.FirstOrDefault(x => x.Username == username);
                 return Ok(user);
             }

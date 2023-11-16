@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -69,7 +70,9 @@ namespace ShareTaskAPI.Controllers
                 Entities.List? list = _db.Lists.FirstOrDefault(x => x.Name == name && x.IdCreator == user);
                 if (list == null)
                     return NotFound("list not found");
+                HttpContext.Response.Cookies.Append("idList", Convert.ToString(list.IdList));
                 return Ok(list);
+                
             }
             catch (Exception ex)
             {

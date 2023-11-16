@@ -9,7 +9,7 @@ public class Task
     public string  NameTask { get; set; }= null!;
     public string Description { get; set; } = null!;
 
-    public virtual List IdListNavigaton { get; set; } = null!;
-    public virtual User IdCreatorNavigaton { get; set; } = null!;
-    public virtual Role IdRoleNavigation { get; set; } = null!;
+    public virtual List? IdListNavigaton { get; set; } = null!;
+    public virtual User? IdCreatorNavigaton { get; set; } = null!;
+    public virtual Role? IdRoleNavigation { get; set; } = null!;
 }
