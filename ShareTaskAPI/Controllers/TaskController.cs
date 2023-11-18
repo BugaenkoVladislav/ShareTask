@@ -62,5 +62,46 @@ namespace ShareTaskAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete("DeleteTask/{idTask}")]
+        public IActionResult DeleteTask([FromRoute] long idTask)
+        {
+            try
+            {
+                var idList = AccountActions.ReturnListId(HttpContext);
+                var task = _db.Tasks.FirstOrDefault(x => x.IdTask == idTask && x.IdList == idList);
+                if (task == null)
+                    return NotFound();
+                _db.Remove(task);
+                _db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut("EditTask/{idTask}")]
+        public IActionResult EditTask([FromRoute] long idTask, [FromBody] Task newTask)
+        {
+            try
+            {
+                var idList = AccountActions.ReturnListId(HttpContext);
+                var task = _db.Tasks.FirstOrDefault(x => x.IdTask == idTask && x.IdList == idList);
+                if (task == null)
+                    return NotFound();
+                task.Description = newTask.Description;
+                task.NameTask = newTask.NameTask;
+                task.IdRole = newTask.IdRole;
+                _db.Update(task);
+                _db.SaveChanges();
+                return Ok(task);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
