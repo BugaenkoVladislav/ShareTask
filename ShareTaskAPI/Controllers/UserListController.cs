@@ -79,14 +79,13 @@ namespace ShareTaskAPI.Controllers
         }
 
 
-        [HttpDelete("DeleteUserList/{listId}")]
-        public IActionResult DeleteUserList()
+        [HttpDelete("DeleteUserList/{idList}")]
+        public IActionResult DeleteUserList([FromRoute] long idList)
         {
             try
             {
                 var userId = AccountActions.ReturnUserFromCookie(this.HttpContext, _db).IdUser;
-                var listId = AccountActions.ReturnListId(HttpContext);
-                var userlist = _db.UsersLists.FirstOrDefault(x => x.IdUser == userId && x.IdList == listId);
+                var userlist = _db.UsersLists.FirstOrDefault(x => x.IdUser == userId && x.IdList == idList);
                 if (userlist == null)
                     return NotFound();
                 _db.Remove(userlist);

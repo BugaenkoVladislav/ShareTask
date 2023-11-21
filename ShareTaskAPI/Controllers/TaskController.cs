@@ -31,12 +31,11 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
-                var idList = AccountActions.ReturnListId(this.HttpContext);
                 var idUser = AccountActions.ReturnUserFromCookie(this.HttpContext, _db).IdUser;
                 _db.Tasks.Add(new Task
                 {
                     IdCreator = idUser,
-                    IdList = idList,
+                    IdList = task.IdList,
                     IdRole = task.IdRole,
                     NameTask = task.NameTask,
                     Description = task.Description
@@ -49,12 +48,11 @@ namespace ShareTaskAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("GetAllTask")]
-        public IActionResult GetAllTasks()
+        [HttpGet("GetAllTask/{idList}")]
+        public IActionResult GetAllTasks([FromRoute] long idList)
         {
             try
             {
-                var idList = AccountActions.ReturnListId(HttpContext);
                 return Ok(_db.Tasks.Where(x => x.IdList == idList).ToList());
             }
             catch (Exception ex)
@@ -63,12 +61,11 @@ namespace ShareTaskAPI.Controllers
             }
         }
 
-        [HttpDelete("DeleteTask/{idTask}")]
-        public IActionResult DeleteTask([FromRoute] long idTask)
+        [HttpDelete("DeleteTask/{idList}/{idTask}")]
+        public IActionResult DeleteTask([FromRoute] long idTask, [FromRoute] long idList)
         {
             try
             {
-                var idList = AccountActions.ReturnListId(HttpContext);
                 var task = _db.Tasks.FirstOrDefault(x => x.IdTask == idTask && x.IdList == idList);
                 if (task == null)
                     return NotFound();
@@ -82,12 +79,11 @@ namespace ShareTaskAPI.Controllers
             }
         }
 
-        [HttpPut("EditTask/{idTask}")]
-        public IActionResult EditTask([FromRoute] long idTask, [FromBody] Task newTask)
+        [HttpPut("EditTask/{idList}/{idTask}")]
+        public IActionResult EditTask([FromRoute] long idTask, [FromRoute] long idList, [FromBody] Task newTask)
         {
             try
             {
-                var idList = AccountActions.ReturnListId(HttpContext);
                 var task = _db.Tasks.FirstOrDefault(x => x.IdTask == idTask && x.IdList == idList);
                 if (task == null)
                     return NotFound();

@@ -9,13 +9,13 @@ public partial class User
 
     public string Username { get; set; } = null!;
 
-    public string Password { get; set; } = null!;
+    public string Password { get; set; } = "1";
 
-    public string Firstname { get; set; } = null!;
+    public string Firstname { get; set; } = "1";
 
-    public string Lastname { get; set; } = null!;
+    public string Lastname { get; set; } = "1";
 
-    public string Midname { get; set; } = null!;
+    public string Midname { get; set; } = "1";
 
     public bool IsAdmin { get; set; }
 

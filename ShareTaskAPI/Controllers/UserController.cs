@@ -1,9 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using ShareTaskAPI.Context;
 using ShareTaskAPI.Entities;
 using ShareTaskAPI.Service;
@@ -29,15 +33,28 @@ namespace ShareTaskAPI.Controllers
                 {
                     return NotFound("Uncorrect login or password");
                 }
-
+                string userAgent = Request.Headers["User-Agent"].ToString();
                 var role = dbUser.IsAdmin == true ? "1" : "0";
                 var claims = new List<Claim>
                 {
-                    new Claim("username", dbUser.Username.ToString()),
-                    new Claim("role",role)
+                    new Claim(ClaimTypes.Name, dbUser.Username.ToString()),
+                    new Claim(ClaimTypes.Role,role)
                 };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes("MySecretCooffeeProjKey121205");
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = "Bearer " + tokenHandler.WriteToken(token);
+                if (userAgent.Contains("Mobile"))
+                {
+                    return Ok(tokenString);
+                }
+                var claimsIdentity = new ClaimsIdentity(claims,JwtBearerDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                 return Ok();
             }
@@ -123,6 +140,12 @@ namespace ShareTaskAPI.Controllers
         {
             try
             {
+                string userAgent = Request.Headers["User-Agent"].ToString();
+                if (userAgent.Contains("Mobile"))
+                {
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return Ok();
+                }
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return Ok();
             }

@@ -1,24 +1,44 @@
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ShareTaskAPI.Context;
 using ShareTaskAPI.Service.Constraints;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(x=>
+    {
+        
+        x.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MySecretCooffeeProjKey121205")),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    })
     .AddCookie(options =>
     {
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("SelectedList", policy=>policy.Requirements.Add(new ListIdCookieRequirement("idList")));
-    options.AddPolicy("Authorized", policy => policy.RequireClaim("username"));
-    options.AddPolicy("OnlyForAdmin",policy=>policy.RequireClaim("role","1"));
+    options.AddPolicy("Authorized",policy=>policy.Requirements.Add(new JwtOrCookieRequirement("Authorization", ClaimTypes.Name)));
+    options.AddPolicy("OnlyForAdmin",policy=>policy.RequireClaim(ClaimTypes.Role,"1"));
 });
-builder.Services.AddSingleton<IAuthorizationHandler, ListIdValueHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, JwtOrCookieValueHandler>();
 builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 

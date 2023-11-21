@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using ShareTaskAPI.Context;
 using ShareTaskAPI.Entities;
 
@@ -15,15 +17,20 @@ public class AccountActions : ControllerBase
 
     public static User ReturnUserFromCookie(HttpContext context, MyDbContext db)
     {
-        var username = context.User.Claims.FirstOrDefault(x => x.Type == "username")?.Value;
-        var user = db.Users.First(e => e.Username == username);
-        return user;
-    }
+        var usernameJwt = context.Request.Headers["Authorized"].ToString();
+        var usernameCookie = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+        if (usernameJwt.Length != 0)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(usernameJwt);//считываем токен
+            var claim = token.Claims.First(c => c.Type == ClaimTypes.Name).Value; //достаем из токена claim
+            var userJwt = db.Users.First(e => e.Username == claim );
+            return userJwt;
+        }
+        var userCookie = db.Users.First(e => e.Username == usernameCookie );
+        return userCookie;
 
-    public static long ReturnListId(HttpContext context)
-    {
-        context.Request.Cookies.TryGetValue("idList", out string? id);
-        return Convert.ToInt64(id);
     }
+    
     
 }
