@@ -1,0 +1,34 @@
+﻿syntax = "proto3";
+import "google/protobuf/any.proto";
+option csharp_namespace = "AuthorizeService";
+
+service Authorize{
+    rpc SignUp(SignUpInfo)returns (Response);
+    rpc SignIn(LoginPassword) returns (Response);
+}
+message SignUpInfo{
+    LoginPassword login_password = 1;
+    string name = 2;
+    string surname = 3;
+    string phone = 4;
+    string profession =5;
+    
+}
+message LoginPassword{
+    string login = 1;
+    string password = 2;
+}
+
+enum RegistrationStatus {
+    UNKNOWN = 0;
+    OK= 1;
+    UNAUTHORIZED  = 2;
+    NOT_FOUND = 3;
+    FORBID = 4;
+    BAD_REQUEST = 5;
+}
+
+message Response {
+    RegistrationStatus registration_status = 1;
+    string message = 2;
+}
