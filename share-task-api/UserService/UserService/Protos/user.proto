@@ -1,0 +1,35 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "UserService";
+
+service User {
+    rpc Me(Request)returns (Response);
+    rpc ChangeUserInfo(Request)returns (Response);
+    rpc ChangePassword(Request) returns (Response);
+}
+message Request {
+    UserInfo new_user_info = 1;
+    string new_password = 2;
+}
+
+message UserInfo{
+    string name = 1;
+    string surname = 2;
+    string phone = 3;
+    string profession = 4;
+}
+
+enum Statuses {
+    UNKNOWN = 0;
+    OK= 1;
+    UNAUTHORIZED  = 2;
+    NOT_FOUND = 3;
+    FORBID = 4;
+    BAD_REQUEST = 5;
+}
+
+message Response {
+    Statuses status = 1;
+    string message = 2;
+    UserInfo user = 3;
+}
