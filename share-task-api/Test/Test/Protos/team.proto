@@ -1,0 +1,53 @@
+﻿syntax = "proto3";
+option csharp_namespace = "TeamService";
+service Team{
+    rpc ShowMyTeams(Request)returns (TeamResponse);
+    rpc CreateTeam(TeamDescription)returns (Response);
+    rpc DeleteTeam(RequestData)returns (Response);
+    rpc ShowUsersInTeam(RequestData)returns (UserResponse);
+    rpc AddUserInTeam(RequestData) returns (Response);
+    rpc DeleteUserFromTeam(RequestData)returns (Response);
+}
+message Request{
+    
+}
+message RequestData{
+    int64  idTeam = 1;
+    int64 idUser = 2;
+}
+
+enum Status {
+    UNKNOWN = 0;
+    OK= 1;
+    UNAUTHORIZED  = 2;
+    NOT_FOUND = 3;
+    FORBID = 4;
+    BAD_REQUEST = 5;
+}
+
+message Response {
+    Status status = 1;
+    string message = 2;
+}
+
+message UserResponse{
+    Response response = 1;
+    repeated UserDescription users = 2;
+}
+
+message TeamResponse{
+    Response response = 1;
+    repeated TeamDescription teams = 2;
+}
+
+message UserDescription{
+    string name = 1;
+    string surname = 2;
+    string phone = 3;
+    string profession =4;
+}
+
+message TeamDescription{
+    string title =1;
+    string description =2;
+}

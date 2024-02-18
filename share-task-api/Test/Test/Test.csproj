@@ -13,6 +13,9 @@
       </Content>
     </ItemGroup>
     <ItemGroup>
+        <Protobuf Include="Protos\team.proto" GrpcServices="Client" />
+    </ItemGroup>
+    <ItemGroup>
         <Protobuf Include="Protos\authorize.proto" GrpcServices="Client" />
     </ItemGroup>
     <ItemGroup>
