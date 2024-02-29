@@ -1,6 +1,7 @@
 ﻿using AuthorizeService;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.Security.Claims;
 using TeamService;
 using UserService;
 using Request = UserService.Request;
@@ -8,6 +9,9 @@ using Request = UserService.Request;
 
 var chanel = GrpcChannel.ForAddress("http://localhost:5102");
 var client = new Authorize.AuthorizeClient(chanel);
+
+
+
 var logPassword = new LoginPassword()
 {
 

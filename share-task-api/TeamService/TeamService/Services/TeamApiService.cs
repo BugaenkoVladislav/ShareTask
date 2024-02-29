@@ -111,6 +111,9 @@ public class TeamApiService:Team.TeamBase
         var metadata = context.RequestHeaders;
         try
         {
+            var user = _returner.ReturnUserFromJwt(metadata.GetValue("Authorization").ToString());
+            if (_db.TeamsUsers.FirstOrDefault(x => x.IdUser == user.Id && request.IdTeam == x.IdTeam) == null)
+                throw new NullReferenceException();
             var resultId = _db.TeamsUsers.Where(x => x.IdTeam == request.IdTeam).ToList();
             foreach (var i in resultId)
             {
@@ -118,8 +121,14 @@ public class TeamApiService:Team.TeamBase
                 var res = _returner.ReturnUserDescriptions(resTeam);
                 userResponse.Users.Add(res);
             }
+
             response.Message = "OK";
             response.Status = Status.Ok;
+        }
+        catch (NullReferenceException exception)
+        {
+            response.Message = exception.Message;
+            response.Status = Status.Forbid; 
         }
         catch (Exception exception)
         {
@@ -226,7 +235,6 @@ public class Returner
     
     public TeamDescription ReturnTeamDescriptions(Entities.Team team)
     {
-        var idAdminTeamUser = _db.TeamsUsers.First(x => x.IdTeam == team.Id && x.IsAdmin == true);
         return new TeamDescription()
         {
             Title = team.Title,
